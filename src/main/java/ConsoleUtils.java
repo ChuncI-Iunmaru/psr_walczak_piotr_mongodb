@@ -141,4 +141,19 @@ public class ConsoleUtils {
         System.out.format("%-63s\n", d.get("notes"));
     }
 
+    static void printCrimeGraph(Map<String, Integer> stats, int totalCrimes) {
+        System.out.println("Statystki przestępstw dla grup wiekowych: ");
+        List<String> sorted = new ArrayList<>(stats.keySet());
+        Collections.sort(sorted);
+        for (String s : sorted) {
+            //System.out.println(s + ": " + Math.floorDiv(stats.get(s)*100, totalCrimes) +"%");
+            System.out.format("%-10s", s + ": ");
+            if (Math.floorDiv(stats.get(s)*10, totalCrimes) !=0 ) System.out.print(" ");
+            for (int i = 0; i < Math.floorDiv(stats.get(s)*10, totalCrimes); i++) {
+                System.out.print('*');
+            }
+            System.out.print(" " + stats.get(s) + " (" + Math.floorDiv(stats.get(s)*100, totalCrimes) +"%)\n");
+        }
+    }
+
 }

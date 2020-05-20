@@ -5,7 +5,12 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.include;
 
 public class AppMain {
 
@@ -52,6 +57,53 @@ public class AppMain {
         } else System.out.println("Nie znaleziono profilu!");
     }
 
+    private static void getByQuery(MongoCollection<Document> collection) {
+        System.out.println("Podaj imię - '*' by wyszukiwać wszystkie");
+        String name = ConsoleUtils.getText(1);
+        System.out.println("Podaj nazwisko - '*' by wyszukiwać wszystkie");
+        String surname = ConsoleUtils.getText(1);
+        if (name.compareTo("*") == 0 && surname.compareTo("*") == 0) {
+            getAllCriminals(collection);
+        } else if (name.compareTo("*") != 0 && surname.compareTo("*") == 0) {
+            for (Document d: collection.find(eq("name", name))) {
+                ConsoleUtils.printCriminalProfile(d);
+            }
+        } else if (name.compareTo("*") == 0) {
+            for (Document d: collection.find(eq("surname", surname))) {
+                ConsoleUtils.printCriminalProfile(d);
+            }
+        } else {
+            for (Document d: collection.find(and(eq("surname", surname), eq("name", name)))) {
+                ConsoleUtils.printCriminalProfile(d);
+            }
+        }
+
+    }
+
+    private static void getCrimeStatistics(MongoCollection<Document> collection){
+        System.out.println("Przetwarzanie danych z użyciem projection");
+        Map<String, Integer> ageBrackets = new HashMap<>();
+        ageBrackets.put("1. <20", 0);
+        ageBrackets.put("2. 20-30", 0);
+        ageBrackets.put("3. 31-50", 0);
+        ageBrackets.put("4. 51-65", 0);
+        ageBrackets.put("5. 65+", 0);
+        int totalCrimes = 0;
+        long age;
+        int crimes;
+        for (Document d : collection.find().projection(include("dob", "crimes"))) {
+            age = ConsoleUtils.calculateAge(d.get("dob").toString());
+            crimes = d.getList("crimes", String.class).size();
+            totalCrimes += crimes;
+            if (age < 20) ageBrackets.replace("1. <20", ageBrackets.get("1. <20")+crimes);
+            if (age >= 20 && age <= 30) ageBrackets.replace("2. 20-30", ageBrackets.get("2. 20-30")+crimes);
+            if (age >= 31 && age <= 50) ageBrackets.replace("3. 31-50", ageBrackets.get("3. 31-50")+crimes);
+            if (age >= 51 && age <= 65) ageBrackets.replace("4. 51-65", ageBrackets.get("4. 51-65")+crimes);
+            if (age > 65) ageBrackets.replace("5. 65+", ageBrackets.get("5. 65+")+crimes);
+        }
+        ConsoleUtils.printCrimeGraph(ageBrackets, totalCrimes);
+    }
+
     public static void main(String[] args) {
         String user = "policjant";
         String password = "policjant";
@@ -88,8 +140,10 @@ public class AppMain {
                     getAllCriminals(collection);
                     break;
                 case 'n':
+                    getByQuery(collection);
                     break;
                 case 'o':
+                    getCrimeStatistics(collection);
                     break;
                 case 'z':
                     mongoClient.close();
