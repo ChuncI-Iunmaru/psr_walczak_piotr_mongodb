@@ -2,10 +2,12 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.mongodb.client.model.Filters.and;
@@ -20,16 +22,16 @@ public class AppMain {
         criminal.append("name", ConsoleUtils.getText(1));
         System.out.println("Podaj nazwisko: ");
         criminal.append("surname", ConsoleUtils.getText(1));
-        criminal.append("gender", ConsoleUtils.pickGender());
-        criminal.append("build", ConsoleUtils.getBuild());
-        criminal.append("height", ConsoleUtils.getHeight());
+        criminal.append("gender", ConsoleUtils.pickGender(""));
+        criminal.append("build", ConsoleUtils.getBuild(""));
+        criminal.append("height", ConsoleUtils.getHeight(0));
         System.out.println("Podaj cechy szczególne: ");
         criminal.append("characteristics", ConsoleUtils.getListOfTexts(";", 0));
         System.out.println("Podaj przestępstwa: ");
         criminal.append("crimes", ConsoleUtils.getListOfTexts(";", 1));
         System.out.println("Podaj uwagi: ");
         criminal.append("notes", ConsoleUtils.getText(0));
-        criminal.append("dob", ConsoleUtils.getFormattedDate());
+        criminal.append("dob", ConsoleUtils.getFormattedDate(""));
         collection.insertOne(criminal);
         System.out.println("Dodano przestępcę o id: " + criminal.get("_id"));
     }
@@ -77,6 +79,52 @@ public class AppMain {
                 ConsoleUtils.printCriminalProfile(d);
             }
         }
+    }
+
+    private static void updateCriminal(MongoCollection<Document> collection) {
+        System.out.println("Podaj id profilu przestępcy: ");
+        String id = ConsoleUtils.getText(1);
+        Document result = collection.find(eq("_id", new ObjectId(id))).first();
+        if (result != null) {
+            System.out.println("\nPodaj imię. Obecna wartość '" + result.getString("name")+"'. Pozostaw puste by nie zmieniać");
+            String newName = ConsoleUtils.getText(0);
+            if (newName.isEmpty()) newName = result.getString("name");
+
+            System.out.println("\nPodaj nazwisko. Obecna wartość '" + result.getString("surname")+"'. Pozostaw puste by nie zmieniać");
+            String newSurname = ConsoleUtils.getText(0);
+            if (newSurname.isEmpty()) newSurname = result.getString("surname");
+
+            String newGender = ConsoleUtils.pickGender(result.getString("gender"));
+            String newBuild = ConsoleUtils.getBuild(result.getString("build"));
+            int newHeight = ConsoleUtils.getHeight(result.getInteger("height"));
+
+            System.out.println("Podaj cechy szczególne. Pozostaw puste by nie zmieniać.");
+            List<String> newChars = ConsoleUtils.getListOfTexts(";", 0);
+            if (newChars.size() == 1 && newChars.get(0).isEmpty()) newChars = result.getList("characteristics", String.class);
+
+            System.out.println("Podaj przestępstwa. Pozostaw puste by nie zmieniać.");
+            List<String> newCrimes = ConsoleUtils.getListOfTexts(";", 0);
+            if (newCrimes.size() == 1 && newCrimes.get(0).isEmpty()) newCrimes = result.getList("crimes", String.class);
+
+            System.out.println("\nPodaj uwagi. Obecna wartość '" + result.getString("notes")+"'. Pozostaw puste by nie zmieniać");
+            String newNotes = ConsoleUtils.getText(0);
+            if (newNotes.isEmpty()) newNotes = result.getString("notes");
+
+            String newDob = ConsoleUtils.getFormattedDate(result.getString("dob"));
+
+            collection.updateOne(eq("_id", new ObjectId(id)), Updates.combine(
+                    Updates.set("name", newName),
+                    Updates.set("surname", newSurname),
+                    Updates.set("gender", newGender),
+                    Updates.set("build", newBuild),
+                    Updates.set("height", newHeight),
+                    Updates.set("characteristics", newChars),
+                    Updates.set("crimes", newCrimes),
+                    Updates.set("notes", newNotes),
+                    Updates.set("dob", newDob)
+            ));
+            System.out.println("Zaktualizowano profil.");
+        } else System.out.println("Nie znaleziono profilu!");
 
     }
 
@@ -132,6 +180,7 @@ public class AppMain {
                     removeCriminal(collection);
                     break;
                 case 'a':
+                    updateCriminal(collection);
                     break;
                 case 'i':
                     getById(collection);

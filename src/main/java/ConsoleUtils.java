@@ -29,12 +29,13 @@ public class ConsoleUtils {
         }
     }
 
-    static String getFormattedDate() {
-
+    static String getFormattedDate(String setValue) {
         System.out.println("Podaj date urodzenia w formacie DD-MM-YYYY");
+        if (!setValue.isEmpty()) System.out.println("Obecna wartość: "+setValue+". Pozostaw puste by nie zmieniać.");
         while (true) {
             try {
                 String line = scanner.nextLine();
+                if (!setValue.isEmpty() && line.isEmpty()) return setValue;
                 LocalDate date = LocalDate.parse(line, format);
                 return format.format(date);
             } catch (DateTimeParseException e) {
@@ -56,14 +57,16 @@ public class ConsoleUtils {
         return tmp;
     }
 
-    static String pickGender() {
+    static String pickGender(String setValue) {
         System.out.println("Wybierz płeć: ");
+        if (!setValue.isEmpty()) System.out.println("Obecna wartość: "+setValue+". Wpisz '0' by nie zmieniać.");
         int gender = 0;
         System.out.println("1.Mężczyzna\n2.Kobieta");
         while (gender < 1 || gender > 2) {
             try {
                 gender = scanner.nextInt();
                 scanner.nextLine();
+                if (!setValue.isEmpty() && gender == 0) return setValue;
                 if (gender < 1 || gender > 2)  System.out.println("Podaj prawidłową wartość 1 lub 2!");
             } catch (InputMismatchException e) {
                 scanner.next();
@@ -73,8 +76,9 @@ public class ConsoleUtils {
         return (gender == 1)? "M" : "K";
     }
 
-    static String getBuild() {
+    static String getBuild(String setValue) {
         System.out.println("Wybierz budowe ciała: ");
+        if (!setValue.isEmpty()) System.out.println("Obecna wartość: "+setValue+". Wpisz '0' by nie zmieniać.");
         int build = 0;
         Map<Integer, String> builds = new HashMap<>();
         builds.put(1, "szczupła");
@@ -88,6 +92,7 @@ public class ConsoleUtils {
             try {
                 build = scanner.nextInt();
                 scanner.nextLine();
+                if (!setValue.isEmpty() && build == 0) return setValue;
                 if (build < 1 || build > 4) System.out.println("Podaj prawidłową wartość 1-4!");
             } catch (InputMismatchException e) {
                 scanner.next();
@@ -97,13 +102,16 @@ public class ConsoleUtils {
         return builds.get(build);
     }
 
-    static int getHeight() {
+    static int getHeight(int setValue) {
         System.out.println("Podaj wzrost w cm:");
-        int height = -1;
+        if (setValue !=0 ) System.out.println("Obecna wartość: "+setValue+". Wpisz '0' by nie zmieniać.");
+        int height = 0;
         while (height < 50 || height > 300) {
             try {
                 height = scanner.nextInt();
                 scanner.nextLine();
+                if (setValue != 0 && height == 0) return setValue;
+                if (height < 50 || height > 300) System.out.println("Podaj prawidłową wartość wzrostu z zakresu 50-300!");
             } catch (InputMismatchException e) {
                 scanner.next();
                 System.out.println("Podaj prawidłową wartość wzrostu!");
