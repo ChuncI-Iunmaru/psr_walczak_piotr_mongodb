@@ -154,7 +154,6 @@ public class ConsoleUtils {
         List<String> sorted = new ArrayList<>(stats.keySet());
         Collections.sort(sorted);
         for (String s : sorted) {
-            //System.out.println(s + ": " + Math.floorDiv(stats.get(s)*100, totalCrimes) +"%");
             System.out.format("%-10s", s + ": ");
             if (Math.floorDiv(stats.get(s)*10, totalCrimes) !=0 ) System.out.print(" ");
             for (int i = 0; i < Math.floorDiv(stats.get(s)*10, totalCrimes); i++) {
