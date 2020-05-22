@@ -152,6 +152,22 @@ public class AppMain {
         ConsoleUtils.printCrimeGraph(ageBrackets, totalCrimes);
     }
 
+    private static void getCrimeStatisticsForGender(MongoCollection<Document> collection) {
+        System.out.println("Przetwarzanie danych z użyciem projection");
+        Map<String, Integer> genderBrackets = new HashMap<>();
+        genderBrackets.put("1. Mężczyzna", 0);
+        genderBrackets.put("2. Kobieta", 0);
+        int totalCrimes = 0;
+        int crimes = 0;
+        for (Document d : collection.find().projection(include("gender", "crimes"))) {
+            crimes = d.getList("crimes", String.class).size();
+            totalCrimes += crimes;
+            if (d.getString("gender").compareTo("M") == 0) genderBrackets.replace("1. Mężczyzna", genderBrackets.get("1. Mężczyzna")+crimes);
+            else genderBrackets.replace("2. Kobieta", genderBrackets.get("2. Kobieta")+crimes);
+        }
+        ConsoleUtils.printCrimeGraph(genderBrackets, totalCrimes);
+    }
+
     public static void main(String[] args) {
         String user = "policjant";
         String password = "policjant";
@@ -195,6 +211,9 @@ public class AppMain {
                     break;
                 case 'o':
                     getCrimeStatistics(collection);
+                    break;
+                case 'p':
+                    getCrimeStatisticsForGender(collection);
                     break;
                 case 'z':
                     mongoClient.close();

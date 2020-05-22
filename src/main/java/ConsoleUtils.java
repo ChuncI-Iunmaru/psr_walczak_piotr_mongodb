@@ -16,8 +16,9 @@ public class ConsoleUtils {
                 "\n4.pobierz po [i]dentyfikatorze" +
                 "\n5.pobierz [w]szystkich" +
                 "\n6.pobierz po imieniu i/lub [n]azwisku" +
-                "\n7.[o]blicz statystki przestepstw" +
-                "\n8.[z]akoncz");
+                "\n7.[o]blicz statystki przestepstw dla wieku" +
+                "\n8.oblicz statystki przestepstw dla [p]lci " +
+                "\n9.[z]akoncz");
         while (true) {
             try {
                 System.out.print("Podaj operację: ");
@@ -150,7 +151,7 @@ public class ConsoleUtils {
     }
 
     static void printCrimeGraph(Map<String, Integer> stats, int totalCrimes) {
-        System.out.println("Statystki przestępstw dla grup wiekowych: ");
+        System.out.println("Statystki przestępstw");
         List<String> sorted = new ArrayList<>(stats.keySet());
         Collections.sort(sorted);
         for (String s : sorted) {
