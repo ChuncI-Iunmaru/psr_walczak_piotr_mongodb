@@ -171,6 +171,8 @@ public class AppMain {
 
         MongoCollection<Document> collection = db.getCollection("criminals");
 
+        System.out.println("PSR Lab 5 aplikacja na temat 7) Policja");
+        System.out.println("Piotr Walczak gr 1ID22B");
         while (true) {
             switch (ConsoleUtils.getMenuOption()) {
                 case 'd':
