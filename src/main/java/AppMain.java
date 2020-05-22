@@ -182,8 +182,8 @@ public class AppMain {
 
         MongoDatabase db = mongoClient.getDatabase(database);
 
-        //Zachowaj dane
-        //db.getCollection("criminals").drop();
+        //Czyść dane
+        db.getCollection("criminals").drop();
 
         MongoCollection<Document> collection = db.getCollection("criminals");
 
