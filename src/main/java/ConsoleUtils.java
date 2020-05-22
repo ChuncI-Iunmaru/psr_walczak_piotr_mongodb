@@ -152,6 +152,10 @@ public class ConsoleUtils {
 
     static void printCrimeGraph(Map<String, Integer> stats, int totalCrimes) {
         System.out.println("Statystki przestępstw");
+        if (totalCrimes == 0) {
+            System.out.println("Brak przestępstw w bazie");
+            return;
+        }
         List<String> sorted = new ArrayList<>(stats.keySet());
         Collections.sort(sorted);
         for (String s : sorted) {
